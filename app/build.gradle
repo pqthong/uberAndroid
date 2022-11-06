@@ -67,5 +67,7 @@ dependencies {
     //geofire
     implementation 'com.firebase:geofire-android:3.2.0'
 
+    // circle imageView
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 
 }
