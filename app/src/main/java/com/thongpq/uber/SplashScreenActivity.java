@@ -129,7 +129,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()){
-
+                            DriverInfoModel driverInfoModel = snapshot.getValue(DriverInfoModel.class);
+                            goToHomeActivity(driverInfoModel);
                         } else {
                             showRegistrationLayout();
                         }
@@ -137,9 +138,15 @@ public class SplashScreenActivity extends AppCompatActivity {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        //
+                        Toast.makeText(SplashScreenActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void goToHomeActivity(DriverInfoModel driverInfoModel){
+        Common.currentUser = driverInfoModel;
+        startActivity(new Intent(SplashScreenActivity.this, DriverHomeActivity.class));
+        finish();
     }
 
     private void showRegistrationLayout(){
@@ -186,6 +193,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Void unused) {
                                 dialog.dismiss();
+                                goToHomeActivity(model);
                             }
                         });
             }
