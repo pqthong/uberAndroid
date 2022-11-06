@@ -1,15 +1,31 @@
+import org.gradle.api.initialization.resolve.RepositoriesMode
+
 pluginManagement {
     repositories {
+        maven { url "https://jitpack.io" }
+        maven {
+            url "https://maven.google.com"
+        }
         gradlePluginPortal()
         google()
         mavenCentral()
+
+        jcenter()
+
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
+        maven { url "https://jitpack.io" }
+        maven {
+            url "https://maven.google.com"
+        }
         google()
         mavenCentral()
+
+        jcenter()
+
     }
 }
 rootProject.name = "Uber"
