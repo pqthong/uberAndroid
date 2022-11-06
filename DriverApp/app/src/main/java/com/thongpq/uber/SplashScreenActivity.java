@@ -27,7 +27,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceIdReceiver;
+import com.google.firebase.installations.FirebaseInstallations;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.thongpq.uber.Model.DriverInfoModel;
+import com.thongpq.uber.Utils.UserUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +92,12 @@ public class SplashScreenActivity extends AppCompatActivity {
         listener = myFirebaseAuth -> {
             FirebaseUser user = myFirebaseAuth.getCurrentUser();
             if (user != null) {
+
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnSuccessListener(s -> UserUtils.updateToken(SplashScreenActivity.this, s))
+                        .addOnFailureListener(e -> Toast.makeText(SplashScreenActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
                 checkUserFromFirebase();
+
             } else {
                 showLoginLayout();
             }
@@ -116,19 +126,16 @@ public class SplashScreenActivity extends AppCompatActivity {
             IdpResponse response = IdpResponse.fromResultIntent(data);
             if (resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            } else {
-
             }
-
         }
     }
 
-    private void checkUserFromFirebase(){
+    private void checkUserFromFirebase() {
         driverInfoRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
+                        if (snapshot.exists()) {
                             DriverInfoModel driverInfoModel = snapshot.getValue(DriverInfoModel.class);
                             goToHomeActivity(driverInfoModel);
                         } else {
@@ -143,15 +150,15 @@ public class SplashScreenActivity extends AppCompatActivity {
                 });
     }
 
-    private void goToHomeActivity(DriverInfoModel driverInfoModel){
+    private void goToHomeActivity(DriverInfoModel driverInfoModel) {
         Common.currentUser = driverInfoModel;
         startActivity(new Intent(SplashScreenActivity.this, DriverHomeActivity.class));
         finish();
     }
 
-    private void showRegistrationLayout(){
+    private void showRegistrationLayout() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.DialogTheme);
-        View itemView = LayoutInflater.from(this).inflate(R.layout.layout_register,null);
+        View itemView = LayoutInflater.from(this).inflate(R.layout.layout_register, null);
 
         TextInputEditText edt_first_name = itemView.findViewById(R.id.edt_first_name);
         TextInputEditText edt_last_name = itemView.findViewById(R.id.edt_last_name);
@@ -168,11 +175,11 @@ public class SplashScreenActivity extends AppCompatActivity {
         dialog.show();
 
         btn_continue.setOnClickListener(view -> {
-            if (TextUtils.isEmpty(edt_first_name.getText().toString())){
+            if (TextUtils.isEmpty(edt_first_name.getText().toString())) {
                 Toast.makeText(this, "Please enter first name", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(edt_last_name.getText().toString())){
+            } else if (TextUtils.isEmpty(edt_last_name.getText().toString())) {
                 Toast.makeText(this, "Please enter last name", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(edt_phone.getText().toString())){
+            } else if (TextUtils.isEmpty(edt_phone.getText().toString())) {
                 Toast.makeText(this, "Please enter phone number", Toast.LENGTH_SHORT).show();
             } else {
                 DriverInfoModel model = new DriverInfoModel();
@@ -201,12 +208,12 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     }
 
-    private void delaySplashScreen(){
+    private void delaySplashScreen() {
 
         progress_bar.setVisibility(View.VISIBLE);
 
         Completable.timer(5, TimeUnit.SECONDS, AndroidSchedulers.mainThread())
-                .subscribe(()->{
+                .subscribe(() -> {
                     firebaseAuth.addAuthStateListener(listener);
                 });
     }
