@@ -2,9 +2,13 @@ package com.thongpq.uber.ui.home;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -50,6 +55,9 @@ import com.thongpq.uber.R;
 import com.thongpq.uber.SplashScreenActivity;
 import com.thongpq.uber.databinding.FragmentHomeBinding;
 
+import java.util.List;
+import java.util.Locale;
+
 public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentHomeBinding binding;
@@ -66,7 +74,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     ValueEventListener onlineValueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
-            if(snapshot.exists()){
+            if (snapshot.exists() && currentUserRef != null) {
                 currentUserRef.onDisconnect().removeValue();
             }
         }
@@ -91,7 +99,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         registerOnlineSystem();
     }
 
-    private void registerOnlineSystem(){
+    private void registerOnlineSystem() {
         onlineRef.addValueEventListener(onlineValueEventListener);
     }
 
@@ -108,13 +116,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         return root;
     }
 
-    @SuppressLint("MissingPermission")
     private void init() {
         onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
-        driversLocationRef = FirebaseDatabase.getInstance().getReference(Common.DRIVERS_LOCATION_REFERENCES);
-        currentUserRef = FirebaseDatabase.getInstance().getReference(Common.DRIVERS_LOCATION_REFERENCES)
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        geoFire = new GeoFire(driversLocationRef);
 
         locationRequest = new LocationRequest.Builder(5000)
                 .setMinUpdateDistanceMeters(10f)
@@ -127,24 +130,51 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
                 LatLng newPosition = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newPosition, 18f));
+                Geocoder geocoder = new Geocoder(getContext(), Locale.getDefault());
+                List<Address> addressList;
+                try {
+                    addressList = geocoder.getFromLocation(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude(), 1);
+                    Log.e("error",addressList.toString());
+                    String cityName = addressList.get(0).getAdminArea();
+                    if (cityName == null){
+                        cityName = "roaming";
+                    }
+                    if (driversLocationRef == null)
+                        driversLocationRef = FirebaseDatabase.getInstance().getReference(Common.DRIVERS_LOCATION_REFERENCES).child(cityName);
+                    currentUserRef = FirebaseDatabase.getInstance().getReference(Common.DRIVERS_LOCATION_REFERENCES)
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    geoFire = new GeoFire(driversLocationRef);
+                    geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(),
+                            new GeoLocation(locationResult.getLastLocation().getLatitude(),
+                                    locationResult.getLastLocation().getLongitude()),
+                            (key, error) -> {
+                                if (error != null) {
 
-                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(),
-                        new GeoLocation(locationResult.getLastLocation().getLatitude(),
-                                locationResult.getLastLocation().getLongitude()),
-                        (key, error) -> {
-                            if (error != null){
-                                Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
-                            } else {
-                                Snackbar.make(mapFragment.getView(), "You are online", Snackbar.LENGTH_LONG).show();
+                                    Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                                } else {
+                                    Snackbar.make(mapFragment.getView(), "You are online", Snackbar.LENGTH_LONG).show();
 
+                                }
                             }
-                        }
-                );
+                    );
+                    registerOnlineSystem();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Snackbar.make(getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                }
+
+
+
             }
         };
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
     }
 
     @Override
@@ -160,20 +190,25 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         Dexter.withContext(getContext())
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(new PermissionListener() {
-                    @SuppressLint("MissingPermission")
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
                         mMap.setMyLocationEnabled(true);
                         mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
                             @Override
                             public boolean onMyLocationButtonClick() {
+                                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                    return false;
+                                }
                                 fusedLocationProviderClient.getLastLocation()
                                         .addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show())
                                         .addOnSuccessListener(new OnSuccessListener<Location>() {
                                             @Override
                                             public void onSuccess(Location location) {
-                                                LatLng userLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+                                                LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
                                             }
                                         });
@@ -184,7 +219,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
                     @Override
                     public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
-                        Toast.makeText(getContext(), "Permission " + permissionDeniedResponse.getPermissionName() +" Denided", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Permission " + permissionDeniedResponse.getPermissionName() + " Denided", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
