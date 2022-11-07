@@ -27,8 +27,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.thongpq.rideruberremake.Common.Common;
 import com.thongpq.rideruberremake.Model.RiderModel;
+import com.thongpq.rideruberremake.Utils.UserUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,6 +103,9 @@ public class SplashScreenActivity extends AppCompatActivity {
         listener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnSuccessListener(s -> UserUtils.updateToken(SplashScreenActivity.this, s))
+                        .addOnFailureListener(e -> Toast.makeText(SplashScreenActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show());
                 checkUserFromFireBase();
             } else {
                 showLoginLayout();
