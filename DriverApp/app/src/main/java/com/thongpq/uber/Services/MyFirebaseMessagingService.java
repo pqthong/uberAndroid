@@ -15,7 +15,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(message);
         Map<String, String> dataRecv = message.getData();
         if (dataRecv != null) {
-
+            Common.showNotification(this, new Random().nextInt(), dataRecv.get(Common.NOTI_TITLE),dataRecv.get(Common.NOTI_CONTENT),null);
         }
     }
 
