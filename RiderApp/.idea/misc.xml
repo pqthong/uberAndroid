@@ -3,7 +3,21 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/drawable/side_nav_bar.xml" value="0.2995" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/activity_home.xml" value="0.2975630611372381" />
         <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/activity_main.xml" value="0.18541666666666667" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/activity_maps.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/activity_splash_screen.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/app_bar_home.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/content_home.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/fragment_gallery.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/fragment_home.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/fragment_slideshow.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/layout_register.xml" value="0.29379485014774165" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/layout_sign_in.xml" value="0.25" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/layout/nav_header_home.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/menu/activity_main_drawer.xml" value="0.2975630611372381" />
+        <entry key="..\:/Users/ASUS/AndroidStudioProjects/UberRemake/uberAndroid/RiderApp/app/src/main/res/menu/home.xml" value="0.2975630611372381" />
       </map>
     </option>
   </component>
