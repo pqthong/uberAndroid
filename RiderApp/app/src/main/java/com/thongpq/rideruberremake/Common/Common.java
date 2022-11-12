@@ -9,17 +9,29 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 
+import androidx.collection.ArraySet;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.maps.model.Marker;
+import com.thongpq.rideruberremake.Model.DriverGeoModel;
 import com.thongpq.rideruberremake.Model.RiderModel;
 import com.thongpq.rideruberremake.R;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class Common {
     public static final String RIDER_INFO_REFERENCE = "Rider";
     public static final String TOKEN_REFERENCE = "Token";
     public static final String NOTI_TITLE = "title";
     public static final String NOTI_CONTENT = "body";
+    public static final String DRIVERS_LOCATION_REFERENCES = "DriversLocation";
+    public static final String DRIVER_INFO_REFERENCE = "DriverInfo";
     public static RiderModel currentRider;
+    public static Set<DriverGeoModel> driverFound = new HashSet<DriverGeoModel>();
+    public static HashMap<String, Marker> markerList = new HashMap<>();
 
     public static String buildWelcomeMessage() {
         if (Common.currentRider != null) {
@@ -62,5 +74,9 @@ public class Common {
         }
 
 
+    }
+
+    public static String buildName(String firstName, String lastname) {
+        return new StringBuilder(firstName).append(" ").append(lastname).toString();
     }
 }
